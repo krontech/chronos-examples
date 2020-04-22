@@ -3,7 +3,7 @@
 import time
 import requests
 
-post = requests.post('http://192.168.12.1/control/startRecording')
+post = requests.post('http://192.168.12.1/control/startRecording', json = {})
 time.sleep(2)
 post = requests.post('http://192.168.12.1/control/stopRecording')
 
