@@ -78,6 +78,7 @@ def save_video_smb(chronos_ip_address, video_path):
         path_found = True
         if os.path.exists(video_file_path) and os.path.isfile(video_file_path):
             print("Caution: File already exists. Will not override file")
+            return False
     else:
         print("Error: Unable to find path. Is it a remote path?")
         return False
@@ -98,22 +99,38 @@ def save_video_smb(chronos_ip_address, video_path):
     if response.status_code == 200:
         # Wait for 2 seconds before we start checking progress
         time.sleep(2)
-        response = requests.get(CHRONOS_URL_API + '/p/' + 'videoState')
-        playback_JSON = json.loads(response.text)
-        video_state = playback_JSON['videoState']
-        is_saving = False
 
-        # Will not write to path if there is a matching filename at destination
-        if video_state != "filesave":
+        is_saving = False
+        retry_counter = 0
+        video_state = ""
+
+        # Wait for maximum of 6 more seconds
+        while not is_saving and video_state != "filesave" and retry_counter < 3:
+            response = requests.get(CHRONOS_URL_API + '/p/' + 'videoState')
+            playback_JSON = json.loads(response.text)
+            video_state = playback_JSON['videoState']
+
+            if video_state == "filesave":
+                is_saving = True
+                retry_counter = 3
+                break
+            else:
+                time.sleep(2)
+                retry_counter += 1
+
+        # Exit out if something went wrong with saving
+        if not is_saving and video_state != "filesave":
             print("Error: Unable to enter filesave state.")
             print("Current camera videoState: " + video_state)
             return False
         else:
             is_saving = True
-            response = requests.get(CHRONOS_URL_API + '/p/' + 'playbackLength')
-            playback_JSON = json.loads(response.text)
-            current_playback_length = playback_JSON['playbackLength']
-            current_playback_position = 0
+        
+        # Get the length of the video
+        response = requests.get(CHRONOS_URL_API + '/p/' + 'playbackLength')
+        playback_JSON = json.loads(response.text)
+        current_playback_length = playback_JSON['playbackLength']
+        current_playback_position = 0
 
         # Wait till video file finishes saving
         while is_saving:

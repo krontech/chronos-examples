@@ -1,5 +1,6 @@
 # record-and-save-smb
 Demonstration of how to record and save a video file to your host environment via SMB Share, and verify the video file usign FFMpeg
+
 # Setup
 
 ## SMB Share - Windows
@@ -21,3 +22,6 @@ Demonstration of how to record and save a video file to your host environment vi
 ## SMB Share - Linux
 
 Needs work. Unable to configure Linux SMB server to connect host to camera.
+
+# Notes
+- Script will not work if a file named 'helloworld.mp4' exists at the specified location
