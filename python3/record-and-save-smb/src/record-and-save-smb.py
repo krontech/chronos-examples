@@ -39,7 +39,7 @@ def record_video(chronos_ip_address, rec_mode="normal", recording_time=5):
     # Flush recording before we start recording
     response = requests.post(CHRONOS_URL_API + '/flushRecording')
 
-    # Record a 10 second video
+    # Record video based on parameter-specified recording time
     # To-do: Incorporate server-sent events handling
     payload = {
         'recMode': rec_mode,
@@ -90,7 +90,7 @@ def save_video_smb(chronos_ip_address, video_path):
         'filename': video_file_name, # From host's perspective, best to set your own filename
         'format': 'h264', # To-do: change video format
         'framerate': 60, # Default at 60 FPS
-        # 'length': 10*1069, # Number of frames to be saved
+        # 'length': 5*1069, # Number of frames to be saved
         'start': 0 # Start at frame 0
     }
 
@@ -201,7 +201,7 @@ if __name__ == "__main__":
 
     # Record and save video to SMB file
     if verify_chronos_connection(chronos_ip_address):
-        record_video(chronos_ip_address, "normal", 5)
+        record_video(chronos_ip_address, "normal", 5) # record 5s video
         video_filename = save_video_smb(chronos_ip_address, video_path)
 
     # Verify video if it exists
